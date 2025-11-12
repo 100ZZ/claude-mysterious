@@ -1,6 +1,6 @@
-# Claude Mysterious - 用户管理系统
+# Claude Mysterious - JMeter性能测试管理系统
 
-一个基于 Vue3 + TypeScript + FastAPI + MySQL 8.0 的前后端分离用户管理系统。
+一个基于 Vue3 + TypeScript + FastAPI + MySQL 8.0 的前后端分离性能测试管理系统。
 
 ## 系统架构
 
@@ -13,11 +13,17 @@
 - ✅ 用户登录认证（JWT Token）
 - ✅ 用户管理（增删改查）
 - ✅ 配置管理（增删改查，支持搜索）
+- ✅ 节点管理（分布式节点管理，Master/Slave模式）
+- ✅ 用例管理（测试用例管理，支持业务线/服务/版本维度）
+- ✅ 脚本管理（JMX脚本管理，支持多种线程组类型）
+- ✅ 依赖管理（JAR包依赖管理）
+- ✅ 文件管理（CSV参数化文件管理）
+- ✅ 报告管理（测试报告管理，支持调试和执行两种模式）
 - ✅ 权限控制（只有管理员可以新增/删除/更新用户和配置）
 - ✅ 默认管理员账号：admin/admin
 - ✅ 响应式设计
 - ✅ CORS跨域支持
-- ✅ 分页查询
+- ✅ 分页查询和搜索功能
 
 ## 快速开始
 
@@ -120,36 +126,111 @@ npm run dev
 - `PUT /api/configs/{config_id}` - 更新配置（需要管理员权限）
 - `DELETE /api/configs/{config_id}` - 删除配置（需要管理员权限）
 
+### 节点管理（需要认证）
+
+- `GET /api/nodes` - 获取节点列表（支持分页和搜索）
+- `GET /api/nodes/{node_id}` - 获取节点详情
+- `POST /api/nodes` - 创建节点
+- `PUT /api/nodes/{node_id}` - 更新节点
+- `DELETE /api/nodes/{node_id}` - 删除节点
+
+### 用例管理（需要认证）
+
+- `GET /api/testcases` - 获取用例列表（支持分页和搜索）
+- `GET /api/testcases/{testcase_id}` - 获取用例详情
+- `POST /api/testcases` - 创建用例
+- `PUT /api/testcases/{testcase_id}` - 更新用例
+- `DELETE /api/testcases/{testcase_id}` - 删除用例
+
+### 脚本管理（需要认证）
+
+- `GET /api/jmxs` - 获取JMX脚本列表（支持分页和搜索）
+- `GET /api/jmxs/{jmx_id}` - 获取JMX脚本详情
+- `POST /api/jmxs` - 创建JMX脚本
+- `PUT /api/jmxs/{jmx_id}` - 更新JMX脚本
+- `DELETE /api/jmxs/{jmx_id}` - 删除JMX脚本
+
+### 依赖管理（需要认证）
+
+- `GET /api/jars` - 获取JAR包列表（支持分页和搜索）
+- `GET /api/jars/{jar_id}` - 获取JAR包详情
+- `POST /api/jars` - 创建JAR包
+- `PUT /api/jars/{jar_id}` - 更新JAR包
+- `DELETE /api/jars/{jar_id}` - 删除JAR包
+
+### 文件管理（需要认证）
+
+- `GET /api/csvs` - 获取CSV文件列表（支持分页和搜索）
+- `GET /api/csvs/{csv_id}` - 获取CSV文件详情
+- `POST /api/csvs` - 创建CSV文件
+- `PUT /api/csvs/{csv_id}` - 更新CSV文件
+- `DELETE /api/csvs/{csv_id}` - 删除CSV文件
+
+### 报告管理（需要认证）
+
+- `GET /api/reports` - 获取测试报告列表（支持分页和搜索）
+- `GET /api/reports/{report_id}` - 获取测试报告详情
+- `POST /api/reports` - 创建测试报告
+- `PUT /api/reports/{report_id}` - 更新测试报告
+- `DELETE /api/reports/{report_id}` - 删除测试报告
+
 ## 项目结构
 
 ```
 claude-mysterious/
-├── backend/                # 后端项目
-│   ├── main.py            # 主应用入口
-│   ├── config.py          # 配置文件
-│   ├── database.py        # 数据库连接
-│   ├── models.py          # 数据模型
-│   ├── schemas.py         # Pydantic模型
-│   ├── auth.py            # 认证相关
-│   ├── crud.py            # 数据库操作
-│   ├── init_db.py         # 数据库初始化脚本
-│   ├── requirements.txt   # Python依赖
-│   └── README.md          # 后端说明文档
+├── backend/                    # 后端项目
+│   ├── main.py                # 主应用入口
+│   ├── config.py              # 配置文件
+│   ├── database.py            # 数据库连接
+│   ├── models.py              # 数据模型（所有表模型）
+│   ├── schemas.py             # Pydantic模型
+│   ├── auth.py                # 认证相关
+│   ├── crud.py                # 用户CRUD操作
+│   ├── crud_config.py         # 配置CRUD操作
+│   ├── crud_node.py           # 节点CRUD操作
+│   ├── crud_testcase.py       # 用例CRUD操作
+│   ├── crud_jmx.py            # 脚本CRUD操作
+│   ├── crud_jar.py            # JAR包CRUD操作
+│   ├── crud_csv.py            # CSV文件CRUD操作
+│   ├── crud_report.py         # 报告CRUD操作
+│   ├── init_db.py             # 数据库初始化脚本
+│   ├── requirements.txt       # Python依赖
+│   └── README.md              # 后端说明文档
 │
-├── frontend/              # 前端项目
+├── frontend/                  # 前端项目
 │   ├── src/
-│   │   ├── api/          # API接口
-│   │   ├── router/       # 路由配置
-│   │   ├── stores/       # 状态管理
-│   │   ├── types/        # TypeScript类型
-│   │   ├── views/        # 页面组件
-│   │   ├── App.vue       # 根组件
-│   │   └── main.ts       # 入口文件
-│   ├── package.json      # npm依赖
-│   ├── vite.config.ts    # Vite配置
-│   └── README.md         # 前端说明文档
+│   │   ├── api/              # API接口
+│   │   │   ├── request.ts    # Axios配置
+│   │   │   ├── auth.ts       # 认证API
+│   │   │   ├── user.ts       # 用户API
+│   │   │   ├── config.ts     # 配置API
+│   │   │   ├── node.ts       # 节点API
+│   │   │   ├── testcase.ts   # 用例API
+│   │   │   ├── jmx.ts        # 脚本API
+│   │   │   ├── jar.ts        # JAR包API
+│   │   │   ├── csv.ts        # CSV文件API
+│   │   │   └── report.ts     # 报告API
+│   │   ├── router/           # 路由配置
+│   │   ├── stores/           # 状态管理
+│   │   ├── types/            # TypeScript类型定义
+│   │   ├── views/            # 页面组件
+│   │   │   ├── Login.vue     # 登录页
+│   │   │   ├── Layout.vue    # 布局页
+│   │   │   ├── Users.vue     # 用户管理
+│   │   │   ├── Configs.vue   # 配置管理
+│   │   │   ├── Nodes.vue     # 节点管理
+│   │   │   ├── TestCases.vue # 用例管理
+│   │   │   ├── Jmxs.vue      # 脚本管理
+│   │   │   ├── Jars.vue      # 依赖管理
+│   │   │   ├── Csvs.vue      # 文件管理
+│   │   │   └── Reports.vue   # 报告管理
+│   │   ├── App.vue           # 根组件
+│   │   └── main.ts           # 入口文件
+│   ├── package.json          # npm依赖
+│   ├── vite.config.ts        # Vite配置
+│   └── README.md             # 前端说明文档
 │
-└── README.md             # 项目总说明（本文件）
+└── README.md                 # 项目总说明（本文件）
 ```
 
 ## 开发说明
@@ -173,9 +254,24 @@ DATABASE_URL=mysql+pymysql://root:Test@123456@localhost:3306/claude_mysterious
 
 ### 权限控制
 
-- 普通用户：可以查看用户列表
-- 管理员用户：可以新增、编辑、删除用户
+- 普通用户：可以查看和管理自己的测试用例、脚本、报告等
+- 管理员用户：可以管理所有用户和配置
 - 用户不能删除自己
+
+## 数据库表结构
+
+系统包含以下数据表：
+
+- `mysterious_user` - 用户信息表
+- `mysterious_config` - 配置表
+- `mysterious_node` - 分布式节点表
+- `mysterious_testcase` - 用例表
+- `mysterious_jmx` - JMX脚本表
+- `mysterious_jar` - JAR包表
+- `mysterious_csv` - CSV文件表
+- `mysterious_report` - 测试报告表
+
+以及JMX相关的扩展表（线程组、HTTP请求、断言等）
 
 ## 故障排查
 
