@@ -1,24 +1,31 @@
 <template>
-  <div class="nodes-container">
-    <el-card>
+  <div class="page-container">
+    <el-card class="content-card" shadow="never">
       <template #header>
         <div class="card-header">
-          <span class="card-title">节点管理</span>
-          <div class="header-actions">
+          <div class="header-left">
+            <span class="card-title">节点管理</span>
+          </div>
+          <div class="header-right">
             <el-input
               v-model="searchName"
-              placeholder="搜索节点名称"
-              style="width: 200px; margin-right: 10px"
+              placeholder="搜索节点名称或主机地址"
+              style="width: 240px; margin-right: 10px"
               clearable
               @clear="handleSearch"
+              @keyup.enter="handleSearch"
             >
-              <template #append>
-                <el-button :icon="Search" @click="handleSearch" />
+              <template #prefix>
+                <el-icon><Search /></el-icon>
               </template>
             </el-input>
+            <el-button @click="handleSearch">
+              <el-icon><Search /></el-icon>
+              搜索
+            </el-button>
             <el-button type="primary" @click="handleAdd">
               <el-icon><Plus /></el-icon>
-              <span>新增节点</span>
+              新增节点
             </el-button>
           </div>
         </div>
@@ -27,29 +34,50 @@
       <el-table
         v-loading="loading"
         :data="nodes"
-        stripe
+        class="data-table"
+        header-row-class-name="table-header"
         style="width: 100%"
       >
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="节点名称" width="150" />
-        <el-table-column prop="description" label="描述" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="type" label="类型" width="100">
+        <el-table-column prop="name" label="节点名称" width="180">
           <template #default="{ row }">
-            <el-tag :type="row.type === 1 ? 'danger' : 'info'">
+            <div class="node-cell">
+              <el-icon class="node-icon"><Monitor /></el-icon>
+              <span>{{ row.name }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="type" label="类型" width="120">
+          <template #default="{ row }">
+            <el-tag :type="row.type === 1 ? '' : 'info'" effect="light" round>
+              <el-icon v-if="row.type === 1"><Star /></el-icon>
+              <el-icon v-else><Connection /></el-icon>
               {{ row.type === 1 ? 'Master' : 'Slave' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="host" label="主机地址" width="150" />
+        <el-table-column prop="host" label="主机地址" width="160">
+          <template #default="{ row }">
+            <el-text class="host-text">{{ row.host }}</el-text>
+          </template>
+        </el-table-column>
         <el-table-column prop="port" label="端口" width="100" />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'">
+            <el-tag :type="row.status === 1 ? 'success' : 'info'" effect="light" round>
               {{ row.status === 1 ? '启用中' : '禁用中' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="creator" label="创建人" width="120" />
+        <el-table-column prop="creator" label="创建人" width="120">
+          <template #default="{ row }">
+            <div class="creator-cell">
+              <el-icon><User /></el-icon>
+              <span>{{ row.creator }}</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="create_time" label="创建时间" width="180">
           <template #default="{ row }">
             {{ formatDate(row.create_time) }}
@@ -57,8 +85,14 @@
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button text type="primary" size="small" @click="handleEdit(row)">
+              <el-icon><Edit /></el-icon>
+              编辑
+            </el-button>
+            <el-button text type="danger" size="small" @click="handleDelete(row)">
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -132,7 +166,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
+import { Search, Plus, Monitor, Star, Connection, User, Edit, Delete } from '@element-plus/icons-vue'
 import { getNodes, createNode, updateNode, deleteNode } from '@/api/node'
 import type { Node, NodeForm } from '@/types/node'
 
@@ -282,30 +316,149 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.nodes-container {
+.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
+}
+
+.content-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.content-card :deep(.el-card__header) {
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 20px;
+}
+
+.content-card :deep(.el-card__body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  flex: 0 0 auto;
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-.header-actions {
+.header-right {
   display: flex;
   align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.data-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.data-table :deep(.el-table) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.data-table :deep(.el-table__body-wrapper) {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.data-table :deep(.table-header) {
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.data-table :deep(.table-header th) {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dcdfe6 !important;
+}
+
+.data-table :deep(.table-header .cell) {
+  color: #1a1a1a !important;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.data-table :deep(.el-table__row:hover) {
+  background: #f5f7fa;
+}
+
+.data-table :deep(td) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.data-table :deep(th.el-table__cell) {
+  text-align: center;
+}
+
+.data-table :deep(td.el-table__cell) {
+  text-align: center;
+}
+
+.node-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.node-icon {
+  color: #667eea;
+  font-size: 18px;
+}
+
+.host-text {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #409eff;
+}
+
+.creator-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #606266;
 }
 
 .pagination {
-  margin-top: 20px;
+  padding: 16px 20px;
   display: flex;
   justify-content: flex-end;
+  background: white;
+  border-top: 1px solid #e8e8e8;
 }
 </style>
 

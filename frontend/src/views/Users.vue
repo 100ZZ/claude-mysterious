@@ -1,28 +1,35 @@
 <template>
-  <div class="users-container">
-    <el-card>
+  <div class="page-container">
+    <el-card class="content-card" shadow="never">
       <template #header>
         <div class="card-header">
-          <span class="card-title">用户管理</span>
-          <div class="header-actions">
+          <div class="header-left">
+            <span class="card-title">用户管理</span>
+          </div>
+          <div class="header-right">
             <el-input
               v-model="searchUsername"
               placeholder="搜索用户名"
-              style="width: 200px; margin-right: 10px"
+              style="width: 240px; margin-right: 10px"
               clearable
               @clear="handleSearch"
+              @keyup.enter="handleSearch"
             >
-              <template #append>
-                <el-button :icon="Search" @click="handleSearch" />
+              <template #prefix>
+                <el-icon><Search /></el-icon>
               </template>
             </el-input>
+            <el-button @click="handleSearch">
+              <el-icon><Search /></el-icon>
+              搜索
+            </el-button>
             <el-button
               v-if="userStore.isAdmin()"
               type="primary"
               @click="handleAdd"
             >
               <el-icon><Plus /></el-icon>
-              <span>新增用户</span>
+              新增用户
             </el-button>
           </div>
         </div>
@@ -31,32 +38,51 @@
       <el-table
         v-loading="loading"
         :data="users"
-        stripe
+        class="data-table"
+        header-row-class-name="table-header"
         style="width: 100%"
       >
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="用户名" width="150" />
-        <el-table-column prop="real_name" label="真实姓名" width="150" />
-        <el-table-column prop="effect_time" label="生效时间" width="180">
+        <el-table-column prop="username" label="用户名" min-width="160">
+          <template #default="{ row }">
+            <div class="user-cell">
+              <el-avatar :size="32" class="user-avatar-mini">
+                {{ row.username.charAt(0).toUpperCase() }}
+              </el-avatar>
+              <span>{{ row.username }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="real_name" label="真实姓名" min-width="140" />
+        <el-table-column prop="effect_time" label="生效时间" width="200">
           <template #default="{ row }">
             {{ formatDate(row.effect_time) }}
           </template>
         </el-table-column>
-        <el-table-column prop="expire_time" label="失效时间" width="180">
+        <el-table-column prop="expire_time" label="失效时间" width="200">
           <template #default="{ row }">
             {{ formatDate(row.expire_time) }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="isExpired(row.expire_time) ? 'danger' : 'success'">
+            <el-tag
+              :type="isExpired(row.expire_time) ? 'danger' : 'success'"
+              effect="light"
+              round
+            >
               {{ isExpired(row.expire_time) ? '已过期' : '正常' }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="角色" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.username === 'admin' ? 'warning' : 'info'">
+            <el-tag
+              :type="row.username === 'admin' ? '' : 'info'"
+              effect="light"
+              round
+            >
+              <el-icon v-if="row.username === 'admin'"><Star /></el-icon>
               {{ row.username === 'admin' ? '管理员' : '普通用户' }}
             </el-tag>
           </template>
@@ -64,25 +90,27 @@
         <el-table-column
           v-if="userStore.isAdmin()"
           label="操作"
-          width="200"
+          width="180"
           fixed="right"
         >
           <template #default="{ row }">
             <el-button
-              link
+              text
               type="primary"
               size="small"
               @click="handleEdit(row)"
             >
+              <el-icon><Edit /></el-icon>
               编辑
             </el-button>
             <el-button
-              link
+              text
               type="danger"
               size="small"
               :disabled="row.id === userStore.user?.id"
               @click="handleDelete(row)"
             >
+              <el-icon><Delete /></el-icon>
               删除
             </el-button>
           </template>
@@ -150,7 +178,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
+import { Search, Plus, UserFilled, Edit, Delete, Star } from '@element-plus/icons-vue'
 import { getUsers, createUser, updateUser, deleteUser } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import type { User, UserCreate, UserUpdate } from '@/types'
@@ -326,29 +354,137 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.users-container {
+.page-container {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.content-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.content-card :deep(.el-card__header) {
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 20px;
+}
+
+.content-card :deep(.el-card__body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  flex: 0 0 auto;
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-.header-actions {
+.header-right {
   display: flex;
   align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.data-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.data-table :deep(.el-table) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.data-table :deep(.el-table__body-wrapper) {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.data-table :deep(.table-header) {
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.data-table :deep(.table-header th) {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dcdfe6 !important;
+}
+
+.data-table :deep(.table-header .cell) {
+  color: #1a1a1a !important;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.data-table :deep(.el-table__row:hover) {
+  background: #f5f7fa;
+}
+
+.data-table :deep(td) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.data-table :deep(th.el-table__cell) {
+  text-align: center;
+}
+
+.data-table :deep(td.el-table__cell) {
+  text-align: center;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar-mini {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .pagination {
-  margin-top: 20px;
+  padding: 16px 20px;
   display: flex;
   justify-content: flex-end;
+  background: white;
+  border-top: 1px solid #e8e8e8;
 }
 </style>

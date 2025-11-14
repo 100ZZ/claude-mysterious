@@ -26,13 +26,22 @@ request.interceptors.response.use(
   (response: AxiosResponse) => {
     return response.data
   },
-  (error: AxiosError) => {
+  (error: AxiosError<any>) => {
     if (error.response) {
+      const errorMessage = error.response.data?.detail || '请求失败'
+      
       switch (error.response.status) {
         case 401:
-          ElMessage.error('未授权，请重新登录')
-          localStorage.removeItem('token')
-          router.push('/login')
+          // 登录失败时显示具体错误信息
+          if (error.config?.url?.includes('/auth/login')) {
+            ElMessage.error(errorMessage === 'Incorrect username or password' 
+              ? '用户名或密码错误' 
+              : errorMessage)
+          } else {
+            ElMessage.error('登录已过期，请重新登录')
+            localStorage.removeItem('token')
+            router.push('/login')
+          }
           break
         case 403:
           ElMessage.error('没有权限执行此操作')
@@ -44,10 +53,10 @@ request.interceptors.response.use(
           ElMessage.error('服务器错误')
           break
         default:
-          ElMessage.error(error.response.data?.detail || '请求失败')
+          ElMessage.error(errorMessage)
       }
     } else {
-      ElMessage.error('网络错误，请检查网络连接')
+      ElMessage.error('网络错误，请检查后端服务是否启动')
     }
     return Promise.reject(error)
   }

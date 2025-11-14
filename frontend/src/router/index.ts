@@ -75,21 +75,44 @@ router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   const requiresAuth = to.meta.requiresAuth !== false
 
-  if (requiresAuth && !userStore.token) {
-    next('/login')
-  } else if (to.path === '/login' && userStore.token) {
-    next('/')
-  } else {
-    if (requiresAuth && !userStore.user) {
-      try {
-        await userStore.fetchUser()
-      } catch (error) {
-        next('/login')
-        return
-      }
-    }
-    next()
+  console.log('路由守卫：', {
+    to: to.path,
+    hasToken: !!userStore.token,
+    hasUser: !!userStore.user,
+    requiresAuth
+  })
+
+  // 如果去登录页且已有token，直接跳转到首页
+  if (to.path === '/login' && userStore.token) {
+    console.log('已登录，跳转到首页')
+    next('/users')
+    return
   }
+
+  // 如果需要认证但没有token，跳转到登录页
+  if (requiresAuth && !userStore.token) {
+    console.log('未登录，跳转到登录页')
+    next('/login')
+    return
+  }
+
+  // 如果需要认证且有token但没有用户信息，获取用户信息
+  if (requiresAuth && userStore.token && !userStore.user) {
+    console.log('有token但无用户信息，尝试获取用户信息')
+    try {
+      await userStore.fetchUser()
+      console.log('用户信息获取成功')
+      next()
+    } catch (error) {
+      console.error('获取用户信息失败，清除token并跳转到登录页')
+      userStore.clearAuth()
+      next('/login')
+    }
+    return
+  }
+
+  // 其他情况直接通过
+  next()
 })
 
 export default router
