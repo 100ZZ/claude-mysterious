@@ -1,9 +1,9 @@
 import request from './request'
 import type { User, UserCreate, UserUpdate, UserListResponse } from '@/types'
 
-export const getUsers = (page: number = 1, size: number = 10, username?: string) => {
+export const getUsers = (page: number = 1, size: number = 10, username?: string, real_name?: string) => {
   return request.get<any, UserListResponse>('/users', {
-    params: { page, size, username }
+    params: { page, size, username, real_name }
   })
 }
 

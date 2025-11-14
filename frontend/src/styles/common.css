@@ -115,3 +115,157 @@
   gap: 8px;
 }
 
+/* 统一所有primary按钮为紫色系 */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%) !important;
+  color: white !important;
+}
+
+:deep(.el-button--primary.is-disabled) {
+  background: #c0c4cc !important;
+  color: white !important;
+}
+
+/* 文本按钮也使用紫色 */
+:deep(.el-button--text.el-button--primary) {
+  color: #667eea !important;
+}
+
+:deep(.el-button--text.el-button--primary:hover) {
+  color: #5568d3 !important;
+}
+
+/* 搜索按钮和创建按钮统一紫色 */
+.search-button,
+.create-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.search-button:hover,
+.create-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%) !important;
+  color: white !important;
+}
+
+/* 退出登录确认按钮紫色样式 - 全局样式，因为ElMessageBox挂载在body上 */
+.logout-confirm-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.logout-confirm-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%) !important;
+  color: white !important;
+}
+
+/* 全局优化样式 */
+/* 输入框优化 */
+:deep(.el-input__wrapper) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.12);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+/* 按钮优化 */
+:deep(.el-button) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+:deep(.el-button:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.el-button:active) {
+  transform: translateY(0);
+}
+
+/* 表格优化 */
+:deep(.el-table) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:deep(.el-table__row) {
+  transition: all 0.2s ease;
+}
+
+:deep(.el-table__row:hover) {
+  background: #f8f9ff !important;
+  transform: scale(1.001);
+}
+
+/* 卡片优化 */
+:deep(.el-card) {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-card:hover) {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 标签优化 */
+:deep(.el-tag) {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 4px 12px;
+}
+
+/* 对话框优化 */
+:deep(.el-dialog) {
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+:deep(.el-dialog__header) {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.el-dialog__body) {
+  padding: 24px;
+}
+
+/* 分页器优化 */
+:deep(.el-pagination) {
+  padding: 12px 0;
+}
+
+:deep(.el-pagination .btn-prev),
+:deep(.el-pagination .btn-next),
+:deep(.el-pagination .number) {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+:deep(.el-pagination .number:hover) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: #667eea;
+}
+
+:deep(.el-pagination .number.is-active) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+

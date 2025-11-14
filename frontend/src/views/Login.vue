@@ -67,6 +67,16 @@
             <span v-else>登录中...</span>
           </el-button>
         </el-form-item>
+        
+        <el-form-item>
+          <el-button
+            size="large"
+            class="register-button"
+            @click="showRegisterDialog = true"
+          >
+            立即注册
+          </el-button>
+        </el-form-item>
       </el-form>
       
       <div class="login-footer">
@@ -76,6 +86,59 @@
         </div>
       </div>
     </div>
+    
+    <!-- 注册对话框 -->
+    <el-dialog
+      v-model="showRegisterDialog"
+      title="用户注册"
+      width="450px"
+      @close="resetRegisterForm"
+    >
+      <el-form
+        ref="registerFormRef"
+        :model="registerForm"
+        :rules="registerRules"
+        label-width="100px"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input
+            v-model="registerForm.username"
+            placeholder="请输入用户名"
+            size="large"
+          />
+        </el-form-item>
+        
+        <el-form-item label="密码" prop="password">
+          <el-input
+            v-model="registerForm.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            show-password
+          />
+        </el-form-item>
+        
+        <el-form-item label="真实姓名" prop="real_name">
+          <el-input
+            v-model="registerForm.real_name"
+            placeholder="请输入真实姓名"
+            size="large"
+          />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <el-button @click="showRegisterDialog = false">取消</el-button>
+        <el-button
+          class="register-dialog-button"
+          type="primary"
+          :loading="registerLoading"
+          @click="handleRegister"
+        >
+          注册
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -84,7 +147,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, FormInstance, FormRules } from 'element-plus'
 import { User, Lock, Odometer, InfoFilled } from '@element-plus/icons-vue'
-import { login } from '@/api/auth'
+import { login, register } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
 import type { LoginRequest } from '@/types'
 
@@ -92,11 +155,20 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const formRef = ref<FormInstance>()
+const registerFormRef = ref<FormInstance>()
 const loading = ref(false)
+const registerLoading = ref(false)
+const showRegisterDialog = ref(false)
 
 const loginForm = reactive<LoginRequest>({
   username: '',
   password: ''
+})
+
+const registerForm = reactive({
+  username: '',
+  password: '',
+  real_name: ''
 })
 
 const rules = reactive<FormRules>({
@@ -105,6 +177,19 @@ const rules = reactive<FormRules>({
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' }
+  ]
+})
+
+const registerRules = reactive<FormRules>({
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度在3到20个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' }
+  ],
+  real_name: [
+    { required: true, message: '请输入真实姓名', trigger: 'blur' }
   ]
 })
 
@@ -141,6 +226,33 @@ const handleLogin = async () => {
       }
     }
   })
+}
+
+const handleRegister = async () => {
+  if (!registerFormRef.value) return
+  
+  await registerFormRef.value.validate(async (valid) => {
+    if (valid) {
+      registerLoading.value = true
+      try {
+        await register(registerForm)
+        ElMessage.success('注册成功！请登录')
+        showRegisterDialog.value = false
+        resetRegisterForm()
+      } catch (error: any) {
+        console.error('注册失败:', error)
+      } finally {
+        registerLoading.value = false
+      }
+    }
+  })
+}
+
+const resetRegisterForm = () => {
+  registerForm.username = ''
+  registerForm.password = ''
+  registerForm.real_name = ''
+  registerFormRef.value?.clearValidate()
 }
 </script>
 
@@ -322,6 +434,41 @@ const handleLogin = async () => {
 
 .login-button:active {
   transform: translateY(0);
+}
+
+.register-button {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.register-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+}
+
+.register-button:active {
+  transform: translateY(0);
+}
+
+.register-dialog-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.register-dialog-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%) !important;
+  color: white !important;
 }
 
 .login-footer {

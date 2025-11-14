@@ -3,19 +3,31 @@ from models import TestCase, User
 from schemas import TestCaseCreate, TestCaseUpdate
 
 
-def get_testcases(db: Session, skip: int = 0, limit: int = 10, name: str = None):
+def get_testcases(db: Session, skip: int = 0, limit: int = 10, id: int = None, name: str = None, biz: str = None, service: str = None):
     """获取用例列表"""
     query = db.query(TestCase)
+    if id:
+        query = query.filter(TestCase.id == id)
     if name:
         query = query.filter(TestCase.name.contains(name))
+    if biz:
+        query = query.filter(TestCase.biz.contains(biz))
+    if service:
+        query = query.filter(TestCase.service.contains(service))
     return query.offset(skip).limit(limit).all()
 
 
-def get_testcases_count(db: Session, name: str = None):
+def get_testcases_count(db: Session, id: int = None, name: str = None, biz: str = None, service: str = None):
     """获取用例总数"""
     query = db.query(TestCase)
+    if id:
+        query = query.filter(TestCase.id == id)
     if name:
         query = query.filter(TestCase.name.contains(name))
+    if biz:
+        query = query.filter(TestCase.biz.contains(biz))
+    if service:
+        query = query.filter(TestCase.service.contains(service))
     return query.count()
 
 

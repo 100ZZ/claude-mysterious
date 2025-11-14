@@ -8,9 +8,9 @@
           </div>
           <div class="header-right">
             <el-input
-              v-model="searchKey"
-              placeholder="搜索配置字段或描述"
-              style="width: 240px; margin-right: 10px"
+              v-model="searchConfigKey"
+              placeholder="配置字段"
+              style="width: 180px; margin-right: 10px"
               clearable
               @clear="handleSearch"
               @keyup.enter="handleSearch"
@@ -19,13 +19,29 @@
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button @click="handleSearch">
+            <el-input
+              v-model="searchConfigValue"
+              placeholder="配置值"
+              style="width: 180px; margin-right: 10px"
+              clearable
+              @clear="handleSearch"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+            <el-button class="reset-button" @click="handleReset">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+            <el-button class="search-button" @click="handleSearch">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
             <el-button
               v-if="userStore.isAdmin()"
-              type="primary"
+              class="create-button"
               @click="handleAdd"
             >
               <el-icon><Plus /></el-icon>
@@ -42,8 +58,8 @@
         header-row-class-name="table-header"
         style="width: 100%"
       >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="config_key" label="配置字段" min-width="180">
+        <el-table-column prop="id" label="ID" min-width="60" />
+        <el-table-column prop="config_key" label="配置字段" min-width="140">
           <template #default="{ row }">
             <el-tag type="primary" effect="light" round>
               <el-icon><Key /></el-icon>
@@ -51,15 +67,15 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="config_value" label="配置值" min-width="180">
+        <el-table-column prop="config_value" label="配置值" min-width="140">
           <template #default="{ row }">
             <div class="config-value">
               <el-text class="value-text" truncated>{{ row.config_value }}</el-text>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="creator" label="创建人" width="120">
+        <el-table-column prop="description" label="描述" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="creator" label="创建人" min-width="100">
           <template #default="{ row }">
             <div class="creator-cell">
               <el-icon><User /></el-icon>
@@ -67,7 +83,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="create_time" label="创建时间" width="200">
+        <el-table-column prop="create_time" label="创建时间" min-width="160">
           <template #default="{ row }">
             {{ formatDate(row.create_time) }}
           </template>
@@ -75,7 +91,7 @@
         <el-table-column
           v-if="userStore.isAdmin()"
           label="操作"
-          width="180"
+          min-width="140"
           fixed="right"
         >
           <template #default="{ row }">
@@ -169,7 +185,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
-import { Search, Plus, Setting, Key, User, Edit, Delete } from '@element-plus/icons-vue'
+import { Search, Plus, Setting, Key, User, Edit, Delete, Refresh } from '@element-plus/icons-vue'
 import { getConfigs, createConfig, updateConfig, deleteConfig } from '@/api/config'
 import { useUserStore } from '@/stores/user'
 import type { Config, ConfigCreate, ConfigUpdate } from '@/types/config'
@@ -178,7 +194,8 @@ const userStore = useUserStore()
 
 const loading = ref(false)
 const configs = ref<Config[]>([])
-const searchKey = ref('')
+const searchConfigKey = ref('')
+const searchConfigValue = ref('')
 
 const pagination = reactive({
   page: 1,
@@ -215,7 +232,8 @@ const loadConfigs = async () => {
     const response = await getConfigs(
       pagination.page,
       pagination.size,
-      searchKey.value || undefined
+      searchConfigKey.value || undefined,
+      searchConfigValue.value || undefined
     )
     configs.value = response.list
     pagination.total = response.total
@@ -227,6 +245,13 @@ const loadConfigs = async () => {
 }
 
 const handleSearch = () => {
+  pagination.page = 1
+  loadConfigs()
+}
+
+const handleReset = () => {
+  searchConfigKey.value = ''
+  searchConfigValue.value = ''
   pagination.page = 1
   loadConfigs()
 }
@@ -334,22 +359,31 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 0;
 }
 
 .content-card {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   min-height: 0;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.content-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .content-card :deep(.el-card__header) {
-  background: #fafafa;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f7fa 100%);
   border-bottom: 1px solid #e8e8e8;
   padding: 16px 20px;
+  border-radius: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .content-card :deep(.el-card__body) {
@@ -392,7 +426,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .data-table :deep(.el-table) {
@@ -428,7 +462,9 @@ onMounted(() => {
 }
 
 .data-table :deep(.el-table__row:hover) {
-  background: #f5f7fa;
+  background: #f8f9ff !important;
+  transform: scale(1.001);
+  transition: all 0.2s ease;
 }
 
 .data-table :deep(td) {
@@ -456,16 +492,35 @@ onMounted(() => {
 .creator-cell {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   color: #606266;
+}
+
+.reset-button {
+  background: #f5f7fa;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.reset-button:hover {
+  background: #ecf0f1;
+  border-color: #c0c4cc;
+  color: #606266;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .pagination {
   padding: 16px 20px;
   display: flex;
   justify-content: flex-end;
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
   border-top: 1px solid #e8e8e8;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 </style>
 

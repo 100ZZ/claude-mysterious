@@ -13,25 +13,29 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100, username: str = None):
+def get_users(db: Session, skip: int = 0, limit: int = 100, username: str = None, real_name: str = None):
     query = db.query(User)
     if username:
         query = query.filter(User.username.like(f"%{username}%"))
+    if real_name:
+        query = query.filter(User.real_name.like(f"%{real_name}%"))
     return query.offset(skip).limit(limit).all()
 
 
-def get_users_count(db: Session, username: str = None):
+def get_users_count(db: Session, username: str = None, real_name: str = None):
     query = db.query(User)
     if username:
         query = query.filter(User.username.like(f"%{username}%"))
+    if real_name:
+        query = query.filter(User.real_name.like(f"%{real_name}%"))
     return query.count()
 
 
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
-    # 设置默认生效时间为当前，失效时间为1年后
+    # 设置默认生效时间为当前，失效时间为24小时后
     effect_time = datetime.now()
-    expire_time = effect_time + timedelta(days=365)
+    expire_time = effect_time + timedelta(hours=24)
     
     db_user = User(
         username=user.username,

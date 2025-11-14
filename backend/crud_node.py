@@ -3,19 +3,23 @@ from models import Node, User
 from schemas import NodeCreate, NodeUpdate
 
 
-def get_nodes(db: Session, skip: int = 0, limit: int = 10, name: str = None):
+def get_nodes(db: Session, skip: int = 0, limit: int = 10, name: str = None, host: str = None):
     """获取节点列表"""
     query = db.query(Node)
     if name:
         query = query.filter(Node.name.contains(name))
+    if host:
+        query = query.filter(Node.host.contains(host))
     return query.offset(skip).limit(limit).all()
 
 
-def get_nodes_count(db: Session, name: str = None):
+def get_nodes_count(db: Session, name: str = None, host: str = None):
     """获取节点总数"""
     query = db.query(Node)
     if name:
         query = query.filter(Node.name.contains(name))
+    if host:
+        query = query.filter(Node.host.contains(host))
     return query.count()
 
 

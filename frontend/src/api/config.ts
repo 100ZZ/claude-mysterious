@@ -1,9 +1,9 @@
 import request from './request'
 import type { Config, ConfigCreate, ConfigUpdate, ConfigListResponse } from '@/types/config'
 
-export const getConfigs = (page: number = 1, size: number = 10, configKey?: string) => {
+export const getConfigs = (page: number = 1, size: number = 10, configKey?: string, configValue?: string) => {
   return request.get<any, ConfigListResponse>('/configs', {
-    params: { page, size, config_key: configKey }
+    params: { page, size, config_key: configKey, config_value: configValue }
   })
 }
 

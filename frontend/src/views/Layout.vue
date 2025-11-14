@@ -137,7 +137,8 @@ const handleCommand = (command: string) => {
     ElMessageBox.confirm('确定要退出登录吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
+      confirmButtonClass: 'logout-confirm-button'
     }).then(() => {
       userStore.clearAuth()
       router.push('/login')
@@ -161,11 +162,12 @@ const handleCommand = (command: string) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
   border-bottom: 1px solid #e8e8e8;
   padding: 0 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .header-left .logo {
@@ -261,9 +263,9 @@ const handleCommand = (command: string) => {
 
 /* 侧边栏样式 */
 .sidebar {
-  background: white;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
   border-right: 1px solid #e8e8e8;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
   overflow-y: auto;
 }
 
@@ -310,9 +312,9 @@ const handleCommand = (command: string) => {
 
 /* 主内容区域样式 */
 .main-content {
-  background: #f0f2f5;
-  padding: 24px;
-  overflow-y: auto;
+  background: linear-gradient(135deg, #f0f2f5 0%, #f5f7fa 100%);
+  padding: 0;
+  overflow: hidden;
 }
 
 /* 页面切换动画 */
@@ -356,6 +358,18 @@ const handleCommand = (command: string) => {
 
 .main-content::-webkit-scrollbar-thumb:hover {
   background: #bbb;
+}
+
+/* 退出登录确认按钮紫色样式 */
+:deep(.logout-confirm-button) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+:deep(.logout-confirm-button:hover) {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%) !important;
+  color: white !important;
 }
 </style>
 

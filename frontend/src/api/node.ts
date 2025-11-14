@@ -1,7 +1,7 @@
 import request from './request'
 import type { Node, NodeForm, NodeListResponse } from '@/types/node'
 
-export const getNodes = (params: { page: number; size: number; name?: string }) => {
+export const getNodes = (params: { page: number; size: number; name?: string; host?: string }) => {
   return request.get<NodeListResponse>('/nodes', { params })
 }
 

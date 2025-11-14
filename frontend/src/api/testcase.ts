@@ -1,7 +1,7 @@
 import request from './request'
 import type { TestCase, TestCaseForm, TestCaseListResponse } from '@/types/testcase'
 
-export const getTestCases = (params: { page: number; size: number; name?: string }) => {
+export const getTestCases = (params: { page: number; size: number; id?: number; name?: string; biz?: string; service?: string }) => {
   return request.get<TestCaseListResponse>('/testcases', { params })
 }
 

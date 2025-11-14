@@ -9,8 +9,8 @@
           <div class="header-right">
             <el-input
               v-model="searchUsername"
-              placeholder="搜索用户名"
-              style="width: 240px; margin-right: 10px"
+              placeholder="用户名"
+              style="width: 200px; margin-right: 10px"
               clearable
               @clear="handleSearch"
               @keyup.enter="handleSearch"
@@ -19,17 +19,34 @@
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button @click="handleSearch">
+            <el-input
+              v-model="searchRealName"
+              placeholder="真实姓名"
+              style="width: 200px; margin-right: 10px"
+              clearable
+              @clear="handleSearch"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+            <el-button class="reset-button" @click="handleReset">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+            <el-button class="search-button" @click="handleSearch">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
             <el-button
               v-if="userStore.isAdmin()"
               type="primary"
+              class="create-button"
               @click="handleAdd"
             >
               <el-icon><Plus /></el-icon>
-              新增用户
+              新建用户
             </el-button>
           </div>
         </div>
@@ -42,8 +59,8 @@
         header-row-class-name="table-header"
         style="width: 100%"
       >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="用户名" min-width="160">
+        <el-table-column prop="id" label="ID" min-width="60" />
+        <el-table-column prop="username" label="用户名" min-width="140">
           <template #default="{ row }">
             <div class="user-cell">
               <el-avatar :size="32" class="user-avatar-mini">
@@ -53,18 +70,18 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="real_name" label="真实姓名" min-width="140" />
-        <el-table-column prop="effect_time" label="生效时间" width="200">
+        <el-table-column prop="real_name" label="真实姓名" min-width="120" />
+        <el-table-column prop="effect_time" label="生效时间" min-width="160">
           <template #default="{ row }">
             {{ formatDate(row.effect_time) }}
           </template>
         </el-table-column>
-        <el-table-column prop="expire_time" label="失效时间" width="200">
+        <el-table-column prop="expire_time" label="失效时间" min-width="160">
           <template #default="{ row }">
             {{ formatDate(row.expire_time) }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column label="状态" min-width="90">
           <template #default="{ row }">
             <el-tag
               :type="isExpired(row.expire_time) ? 'danger' : 'success'"
@@ -75,7 +92,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="角色" width="100">
+        <el-table-column label="角色" min-width="110">
           <template #default="{ row }">
             <el-tag
               :type="row.username === 'admin' ? '' : 'info'"
@@ -90,7 +107,7 @@
         <el-table-column
           v-if="userStore.isAdmin()"
           label="操作"
-          width="180"
+          min-width="140"
           fixed="right"
         >
           <template #default="{ row }">
@@ -178,7 +195,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
-import { Search, Plus, UserFilled, Edit, Delete, Star } from '@element-plus/icons-vue'
+import { Search, Plus, UserFilled, Edit, Delete, Star, Refresh } from '@element-plus/icons-vue'
 import { getUsers, createUser, updateUser, deleteUser } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import type { User, UserCreate, UserUpdate } from '@/types'
@@ -188,6 +205,7 @@ const userStore = useUserStore()
 const loading = ref(false)
 const users = ref<User[]>([])
 const searchUsername = ref('')
+const searchRealName = ref('')
 
 const pagination = reactive({
   page: 1,
@@ -233,7 +251,8 @@ const loadUsers = async () => {
     const response = await getUsers(
       pagination.page,
       pagination.size,
-      searchUsername.value || undefined
+      searchUsername.value || undefined,
+      searchRealName.value || undefined
     )
     users.value = response.list
     pagination.total = response.total
@@ -245,6 +264,13 @@ const loadUsers = async () => {
 }
 
 const handleSearch = () => {
+  pagination.page = 1
+  loadUsers()
+}
+
+const handleReset = () => {
+  searchUsername.value = ''
+  searchRealName.value = ''
   pagination.page = 1
   loadUsers()
 }
@@ -261,9 +287,14 @@ const handleSizeChange = (size: number) => {
 }
 
 const handleAdd = () => {
-  dialogTitle.value = '新增用户'
+  dialogTitle.value = '新建用户'
   isEdit.value = false
+  currentUserId.value = 0
+  form.username = ''
+  form.password = ''
+  form.real_name = ''
   dialogVisible.value = true
+  formRef.value?.clearValidate()
 }
 
 const handleEdit = (row: User) => {
@@ -319,7 +350,7 @@ const handleSubmit = async () => {
             real_name: form.real_name
           }
           await createUser(createData)
-          ElMessage.success('创建成功')
+          ElMessage.success('新建用户成功')
         }
         dialogVisible.value = false
         loadUsers()
@@ -358,22 +389,31 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 0;
 }
 
 .content-card {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   min-height: 0;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.content-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .content-card :deep(.el-card__header) {
-  background: #fafafa;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f7fa 100%);
   border-bottom: 1px solid #e8e8e8;
   padding: 16px 20px;
+  border-radius: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .content-card :deep(.el-card__body) {
@@ -411,12 +451,25 @@ onMounted(() => {
   justify-content: flex-end;
 }
 
+.header-right :deep(.el-input__wrapper) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+}
+
+.header-right :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.12);
+}
+
+.header-right :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
 .data-table {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .data-table :deep(.el-table) {
@@ -452,7 +505,9 @@ onMounted(() => {
 }
 
 .data-table :deep(.el-table__row:hover) {
-  background: #f5f7fa;
+  background: #f8f9ff !important;
+  transform: scale(1.001);
+  transition: all 0.2s ease;
 }
 
 .data-table :deep(td) {
@@ -470,6 +525,7 @@ onMounted(() => {
 .user-cell {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -480,11 +536,89 @@ onMounted(() => {
   font-size: 14px;
 }
 
+.search-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.search-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.reset-button {
+  background: #f5f7fa;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.reset-button:hover {
+  background: #ecf0f1;
+  border-color: #c0c4cc;
+  color: #606266;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.create-button:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 统一所有primary按钮为紫色系 */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  color: white;
+}
+
+:deep(.el-button--primary.is-disabled) {
+  background: #c0c4cc;
+  color: white;
+}
+
+/* 文本按钮也使用紫色 */
+:deep(.el-button--text.el-button--primary) {
+  color: #667eea;
+}
+
+:deep(.el-button--text.el-button--primary:hover) {
+  color: #5568d3;
+}
+
 .pagination {
   padding: 16px 20px;
   display: flex;
   justify-content: flex-end;
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
   border-top: 1px solid #e8e8e8;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 </style>

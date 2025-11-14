@@ -9,8 +9,8 @@
           <div class="header-right">
             <el-input
               v-model="searchName"
-              placeholder="搜索JAR包名称"
-              style="width: 240px; margin-right: 10px"
+              placeholder="名称"
+              style="width: 180px; margin-right: 10px"
               clearable
               @clear="handleSearch"
               @keyup.enter="handleSearch"
@@ -19,11 +19,27 @@
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button @click="handleSearch">
+            <el-input
+              v-model="searchTestCaseId"
+              placeholder="用例"
+              style="width: 120px; margin-right: 10px"
+              clearable
+              @clear="handleSearch"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+            <el-button class="reset-button" @click="handleReset">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+            <el-button class="search-button" @click="handleSearch">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
-            <el-button type="primary" @click="handleAdd">
+            <el-button class="create-button" @click="handleAdd">
               <el-icon><Plus /></el-icon>
               新增JAR包
             </el-button>
@@ -38,18 +54,18 @@
         header-row-class-name="table-header"
         style="width: 100%"
       >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="src_name" label="原始文件名" width="200" show-overflow-tooltip />
-        <el-table-column prop="dst_name" label="目标文件名" width="200" show-overflow-tooltip />
-        <el-table-column prop="description" label="描述" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="test_case_id" label="用例ID" width="100" />
-        <el-table-column prop="creator" label="创建人" width="120" />
-        <el-table-column prop="create_time" label="创建时间" width="180">
+        <el-table-column prop="id" label="ID" min-width="60" />
+        <el-table-column prop="src_name" label="原始文件名" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="dst_name" label="目标文件名" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="description" label="描述" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="test_case_id" label="用例ID" min-width="80" />
+        <el-table-column prop="creator" label="创建人" min-width="100" />
+        <el-table-column prop="create_time" label="创建时间" min-width="160">
           <template #default="{ row }">
             {{ formatDate(row.create_time) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" min-width="140" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
             <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
@@ -111,7 +127,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
+import { Search, Plus, Refresh } from '@element-plus/icons-vue'
 import { getJars, createJar, updateJar, deleteJar } from '@/api/jar'
 import type { Jar, JarForm } from '@/types/jar'
 
@@ -121,6 +137,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const searchName = ref('')
+const searchTestCaseId = ref('')
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增JAR包')
@@ -145,7 +162,8 @@ const fetchJars = async () => {
     const res = await getJars({
       page: currentPage.value,
       size: pageSize.value,
-      src_name: searchName.value || undefined
+      src_name: searchName.value || undefined,
+      test_case_id: searchTestCaseId.value ? parseInt(searchTestCaseId.value) : undefined
     })
     jars.value = res.list
     total.value = res.total
@@ -157,6 +175,13 @@ const fetchJars = async () => {
 }
 
 const handleSearch = () => {
+  currentPage.value = 1
+  fetchJars()
+}
+
+const handleReset = () => {
+  searchName.value = ''
+  searchTestCaseId.value = ''
   currentPage.value = 1
   fetchJars()
 }
@@ -253,22 +278,25 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 0;
 }
 
 .content-card {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   min-height: 0;
+  border: none;
 }
 
 .content-card :deep(.el-card__header) {
-  background: #fafafa;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f7fa 100%);
   border-bottom: 1px solid #e8e8e8;
   padding: 16px 20px;
+  border-radius: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .content-card :deep(.el-card__body) {
@@ -311,7 +339,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .data-table :deep(.el-table) {
@@ -347,7 +375,9 @@ onMounted(() => {
 }
 
 .data-table :deep(.el-table__row:hover) {
-  background: #f5f7fa;
+  background: #f8f9ff !important;
+  transform: scale(1.001);
+  transition: all 0.2s ease;
 }
 
 .data-table :deep(td) {
@@ -362,12 +392,30 @@ onMounted(() => {
   text-align: center;
 }
 
+.reset-button {
+  background: #f5f7fa;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.reset-button:hover {
+  background: #ecf0f1;
+  border-color: #c0c4cc;
+  color: #606266;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 .pagination {
   padding: 16px 20px;
   display: flex;
   justify-content: flex-end;
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
   border-top: 1px solid #e8e8e8;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 </style>
 

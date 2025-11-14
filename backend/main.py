@@ -78,6 +78,19 @@ def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@app.post("/api/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+    """用户注册接口，不需要登录"""
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
+    return crud.create_user(db=db, user=user)
+
+
 @app.get("/api/auth/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
@@ -88,13 +101,14 @@ def read_users(
     page: int = 1,
     size: int = 10,
     username: Optional[str] = None,
+    real_name: Optional[str] = None,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """分页查询用户列表"""
     skip = (page - 1) * size
-    users = crud.get_users(db, skip=skip, limit=size, username=username)
-    total = crud.get_users_count(db, username=username)
+    users = crud.get_users(db, skip=skip, limit=size, username=username, real_name=real_name)
+    total = crud.get_users_count(db, username=username, real_name=real_name)
     
     # 将ORM对象转换为Pydantic schema对象
     users_list = [UserResponse.model_validate(user) for user in users]
@@ -168,13 +182,14 @@ def read_configs(
     page: int = 1,
     size: int = 10,
     config_key: Optional[str] = None,
+    config_value: Optional[str] = None,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """分页查询配置列表"""
     skip = (page - 1) * size
-    configs = crud_config.get_configs(db, skip=skip, limit=size, config_key=config_key)
-    total = crud_config.get_configs_count(db, config_key=config_key)
+    configs = crud_config.get_configs(db, skip=skip, limit=size, config_key=config_key, config_value=config_value)
+    total = crud_config.get_configs_count(db, config_key=config_key, config_value=config_value)
     
     # 将ORM对象转换为Pydantic schema对象
     configs_list = [ConfigResponse.model_validate(config) for config in configs]
@@ -250,13 +265,14 @@ def read_nodes(
     page: int = 1,
     size: int = 10,
     name: Optional[str] = None,
+    host: Optional[str] = None,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """分页查询节点列表"""
     skip = (page - 1) * size
-    nodes = crud_node.get_nodes(db, skip=skip, limit=size, name=name)
-    total = crud_node.get_nodes_count(db, name=name)
+    nodes = crud_node.get_nodes(db, skip=skip, limit=size, name=name, host=host)
+    total = crud_node.get_nodes_count(db, name=name, host=host)
     
     nodes_list = [NodeResponse.model_validate(node) for node in nodes]
     
@@ -326,14 +342,17 @@ def delete_node(
 def read_testcases(
     page: int = 1,
     size: int = 10,
+    id: Optional[int] = None,
     name: Optional[str] = None,
+    biz: Optional[str] = None,
+    service: Optional[str] = None,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """分页查询用例列表"""
     skip = (page - 1) * size
-    testcases = crud_testcase.get_testcases(db, skip=skip, limit=size, name=name)
-    total = crud_testcase.get_testcases_count(db, name=name)
+    testcases = crud_testcase.get_testcases(db, skip=skip, limit=size, id=id, name=name, biz=biz, service=service)
+    total = crud_testcase.get_testcases_count(db, id=id, name=name, biz=biz, service=service)
     
     testcases_list = [TestCaseResponse.model_validate(testcase) for testcase in testcases]
     
