@@ -184,7 +184,7 @@
       
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">
+        <el-button type="primary" class="dialog-confirm-button" :loading="submitting" @click="handleSubmit">
           确定
         </el-button>
       </template>
@@ -314,7 +314,8 @@ const handleDelete = (row: User) => {
     {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
+      confirmButtonClass: 'logout-confirm-button'
     }
   ).then(async () => {
     try {
@@ -396,24 +397,29 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 0;
+  border-radius: 16px;
   overflow: hidden;
   min-height: 0;
-  border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .content-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .content-card :deep(.el-card__header) {
-  background: linear-gradient(135deg, #fafafa 0%, #f5f7fa 100%);
-  border-bottom: 1px solid #e8e8e8;
-  padding: 16px 20px;
-  border-radius: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
 }
 
 .content-card :deep(.el-card__body) {
@@ -485,17 +491,19 @@ onMounted(() => {
 }
 
 .data-table :deep(.table-header) {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
 
 .data-table :deep(.table-header th) {
-  background: #ffffff !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
   color: #1a1a1a !important;
   font-weight: 700;
   font-size: 15px;
-  padding: 16px 0;
-  border-bottom: 1px solid #dcdfe6 !important;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
 .data-table :deep(.table-header .cell) {
@@ -505,13 +513,15 @@ onMounted(() => {
 }
 
 .data-table :deep(.el-table__row:hover) {
-  background: #f8f9ff !important;
-  transform: scale(1.001);
-  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.03) !important;
+  transform: scale(1.002);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .data-table :deep(td) {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .data-table :deep(th.el-table__cell) {
@@ -614,11 +624,12 @@ onMounted(() => {
 }
 
 .pagination {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   justify-content: flex-end;
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-  border-top: 1px solid #e8e8e8;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 16px 16px;
 }
 </style>

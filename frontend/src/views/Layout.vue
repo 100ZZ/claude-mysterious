@@ -150,24 +150,38 @@ const handleCommand = (command: string) => {
 <style scoped>
 .layout-container {
   height: 100vh;
-  background: #f0f2f5;
+  background: transparent;
+  position: relative;
+}
+
+.layout-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  z-index: -1;
 }
 
 .el-container {
   height: 100%;
 }
 
-/* 顶部导航栏样式 */
+/* 顶部导航栏样式 - 透明白色 */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-  border-bottom: 1px solid #e8e8e8;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding: 0 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   z-index: 100;
-  backdrop-filter: blur(10px);
+  position: relative;
 }
 
 .header-left .logo {
@@ -218,8 +232,10 @@ const handleCommand = (command: string) => {
 }
 
 .user-info:hover {
-  background: #f5f7fa;
-  border-color: #e8e8e8;
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .user-avatar {
@@ -261,12 +277,15 @@ const handleCommand = (command: string) => {
   font-weight: 600;
 }
 
-/* 侧边栏样式 */
+/* 侧边栏样式 - 透明白色 */
 .sidebar {
-  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
-  border-right: 1px solid #e8e8e8;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
+  position: relative;
 }
 
 .menu-title {
@@ -296,14 +315,18 @@ const handleCommand = (command: string) => {
 }
 
 .sidebar-menu :deep(.el-menu-item:hover) {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  background: rgba(102, 126, 234, 0.15);
   color: #667eea;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 .sidebar-menu :deep(.el-menu-item.is-active) {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
   color: #667eea;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border-left: 3px solid #667eea;
 }
 
 .sidebar-menu :deep(.el-menu-item .el-icon) {
@@ -312,9 +335,10 @@ const handleCommand = (command: string) => {
 
 /* 主内容区域样式 */
 .main-content {
-  background: linear-gradient(135deg, #f0f2f5 0%, #f5f7fa 100%);
-  padding: 0;
+  background: transparent;
+  padding: 20px;
   overflow: hidden;
+  position: relative;
 }
 
 /* 页面切换动画 */

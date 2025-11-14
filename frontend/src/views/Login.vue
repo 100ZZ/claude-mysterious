@@ -322,9 +322,11 @@ const resetRegisterForm = () => {
   width: 450px;
   padding: 50px 45px;
   background: rgba(255, 255, 255, 0.98);
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
   animation: slideUp 0.6s ease-out;
 }
 
